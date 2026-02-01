@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Crear Cuenta</h2>
+        <form id="registerForm">
+            <input type="text" id="name" placeholder="Nombre completo" required>
+            <input type="email" id="email" placeholder="Correo electrónico" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <input type="password" id="confirmPassword" placeholder="Confirmar Contraseña" required>
+            <select id="level">
+                <option value="usuario">Usuario</option>
+                <option value="admin">Administrador</option>
+            </select>
+            <button type="submit">Registrarse</button>
+            <div id="errorMsg" class="error"></div>
+        </form>
+        <a href="/" class="link">¿Ya tienes cuenta? <span style="font-weight: 700;">Inicia sesión</span></a>
+    </div>
+
+    <script src="js/register.js"></script>
+</body>
+
+</html>
