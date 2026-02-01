@@ -10,6 +10,21 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static('public'));
 
+// Models & Associations
+const User = require('./models/User');
+const Product = require('./models/Product');
+const Cart = require('./models/Cart');
+const CartItem = require('./models/CartItem');
+
+User.hasOne(Cart);
+Cart.belongsTo(User);
+
+Cart.hasMany(CartItem);
+CartItem.belongsTo(Cart);
+
+Product.hasMany(CartItem);
+CartItem.belongsTo(Product);
+
 // Database Connection & Sync
 sequelize.sync({ alter: true })
     .then(() => console.log('SQLite Database Connected & Synced'))
@@ -18,6 +33,7 @@ sequelize.sync({ alter: true })
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
+app.use('/api/cart', require('./routes/cart'));
 
 const PORT = process.env.PORT || 5000;
 

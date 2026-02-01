@@ -59,6 +59,13 @@ function displayProducts(products) {
                     <button onclick="deleteProduct(${product.id})" style="background: #dc3545; color: white; padding: 5px 10px; font-size: 0.8em; flex: 1;">Borrar</button>
                 </div>
             `;
+        } else {
+            // User actions
+            adminActions = `
+                <button onclick="addToCart(${product.id})" style="background: #fff; color: #764ba2; margin-top: 10px; width: 100%; font-size: 0.9em;">
+                    <i class="fas fa-cart-plus"></i> Agregar
+                </button>
+            `;
         }
 
         div.innerHTML = `
@@ -102,6 +109,98 @@ async function searchProduct() {
         console.error(err);
     }
 }
+
+// --- Cart Logic ---
+
+async function toggleCart() {
+    const modal = document.getElementById('cartModal');
+    if (modal.style.display === 'none') {
+        modal.display = 'flex'; // Fix display type
+        modal.style.display = 'flex';
+        await loadCart();
+    } else {
+        modal.style.display = 'none';
+    }
+}
+
+async function loadCart() {
+    try {
+        const res = await fetch('/api/cart', {
+            headers: { 'x-auth-token': token }
+        });
+        const data = await res.json();
+        renderCart(data);
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function renderCart(data) {
+    const container = document.getElementById('cartItemsContainer');
+    const totalDisplay = document.getElementById('cartTotalDisplay');
+
+    container.innerHTML = '';
+
+    if (data.items.length === 0) {
+        container.innerHTML = '<p>Tu carrito está vacío.</p>';
+        totalDisplay.textContent = 'Total: $0.00';
+        return;
+    }
+
+    data.items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'cart-item-row';
+        const price = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.price);
+
+        div.innerHTML = `
+            <div>
+                <strong>${item.name}</strong>
+                <div style="font-size: 0.8em;">${item.quantity} x ${price}</div>
+            </div>
+            <div style="font-weight: bold;">
+                ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.total)}
+            </div>
+        `;
+        container.appendChild(div);
+    });
+
+    totalDisplay.textContent = `Total: ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(data.total)}`;
+}
+
+window.addToCart = async function (productId) {
+    try {
+        const res = await fetch('/api/cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            },
+            body: JSON.stringify({ productId })
+        });
+
+        if (res.ok) {
+            alert('¡Producto agregado al carrito!');
+            // Optional: update cart count if we had one
+        } else {
+            alert('Error al agregar el producto.');
+        }
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+window.clearCart = async function () {
+    if (!confirm('¿Seguro que quieres vaciar el carrito?')) return;
+    try {
+        const res = await fetch('/api/cart', {
+            method: 'DELETE',
+            headers: { 'x-auth-token': token }
+        });
+        if (res.ok) loadCart();
+    } catch (err) {
+        console.error(err);
+    }
+};
 
 // --- Admin CRUD Logic ---
 

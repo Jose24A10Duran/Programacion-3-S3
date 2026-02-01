@@ -22,11 +22,32 @@
             </div>
 
             <div class="user-menu" style="display: flex; gap: 15px; align-items: center;">
+                <button onclick="toggleCart()" class="cart-btn"
+                    style="background: transparent; border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="fas fa-shopping-cart"></i> Carrito
+                </button>
                 <span id="userGreeting">Hola, Usuario</span>
                 <button onclick="logout()" class="logout-btn">Salir</button>
             </div>
         </div>
     </header>
+
+    <!-- Cart Sidebar/Modal -->
+    <div id="cartModal" class="cart-modal" style="display: none;">
+        <div class="cart-content">
+            <div class="cart-header-modal">
+                <h3>Tu Carrito</h3>
+                <button onclick="toggleCart()" class="close-cart">&times;</button>
+            </div>
+            <div id="cartItemsContainer" class="cart-items">
+                <!-- Cart Items -->
+            </div>
+            <div class="cart-footer">
+                <div id="cartTotalDisplay" class="cart-total-price">Total: $0.00</div>
+                <button onclick="clearCart()" class="clear-cart-btn">Vaciar Carrito</button>
+            </div>
+        </div>
+    </div>
 
     <div class="container dashboard">
 
