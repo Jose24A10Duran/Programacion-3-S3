@@ -4,7 +4,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    const level = document.getElementById('level').value;
+    const level = document.querySelector('input[name="level"]:checked').value;
     const errorMsg = document.getElementById('errorMsg');
 
     // Reset error

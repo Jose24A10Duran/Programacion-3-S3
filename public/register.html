@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
+    <title>Registro - A-Tech Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -17,10 +17,13 @@
             <input type="email" id="email" placeholder="Correo electrónico" required>
             <input type="password" id="password" placeholder="Contraseña" required>
             <input type="password" id="confirmPassword" placeholder="Confirmar Contraseña" required>
-            <select id="level">
-                <option value="usuario">Usuario</option>
-                <option value="admin">Administrador</option>
-            </select>
+            <div class="role-selector">
+                <input type="radio" name="level" id="role_user" value="usuario" checked>
+                <label for="role_user">Usuario</label>
+
+                <input type="radio" name="level" id="role_admin" value="admin">
+                <label for="role_admin">Admin</label>
+            </div>
             <button type="submit">Registrarse</button>
             <div id="errorMsg" class="error"></div>
         </form>

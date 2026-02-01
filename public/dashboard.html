@@ -4,22 +4,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard - A-Tech Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
-    <div class="container dashboard">
-        <h2>Dashboard</h2>
-        <p id="welcomeMsg">Bienvenido</p>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo">A-Tech Store</a>
 
-        <div id="roleDisplay" class="role-badge">
-            Cargando rol...
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar productos, marcas y codigo">
+                <button onclick="searchProduct()"><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="user-menu" style="display: flex; gap: 15px; align-items: center;">
+                <span id="userGreeting">Hola, Usuario</span>
+                <button onclick="logout()" class="logout-btn">Salir</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container dashboard">
+
+        <!-- Admin Section (Hidden by default) -->
+        <div id="adminSection" style="display: none; width: 100%; margin-bottom: 30px;">
+            <div class="admin-panel">
+                <h3><i class="fas fa-plus-circle"></i> Publicar Nuevo Producto</h3>
+                <form id="createProductForm">
+                    <input type="hidden" id="editProductId">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <input type="text" id="name" placeholder="Nombre del producto" required>
+                        <input type="text" id="code" placeholder="Código" required>
+                    </div>
+                    <input type="number" id="price" placeholder="Precio" step="0.01" required>
+                    <textarea id="description" placeholder="Descripción" rows="3"></textarea>
+                    <button type="submit" class="btn-primary">Publicar</button>
+                    <div id="message" class="error"></div>
+                </form>
+            </div>
         </div>
 
-        <button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+        <!-- Product Grid -->
+        <h2 style="width: 100%; text-align: left; margin-bottom: 20px;">Productos Destacados</h2>
+        <div id="productList" class="product-grid">
+            <!-- Products loaded here -->
+        </div>
+
     </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 A-Tech Store. Todos los derechos reservados.</p>
+    </footer>
 
     <script src="js/dashboard.js"></script>
 </body>

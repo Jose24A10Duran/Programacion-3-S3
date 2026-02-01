@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cart-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .quantity-controls button {
+            width: 30px;
+            padding: 2px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container dashboard">
+        <div class="cart-header">
+            <h2>Carrito de Compras</h2>
+            <a href="products.html" class="link">Seguir Comprando</a>
+        </div>
+
+        <div id="cartItems">
+            <!-- Cart items loaded here -->
+        </div>
+
+        <div class="cart-total" id="cartTotal">
+            Total: $0.00
+        </div>
+
+        <div class="cart-actions">
+            <button onclick="clearCart()" class="btn-secondary" style="width: auto;">Vaciar Carrito</button>
+            <button onclick="checkout()" class="btn-success" style="width: auto;">Finalizar Compra</button>
+        </div>
+    </div>
+
+    <script src="js/cart.js"></script>
+</body>
+
+</html>
