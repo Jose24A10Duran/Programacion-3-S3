@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script> <!-- Sandbox Client ID -->
 </head>
 
 <body>
@@ -15,13 +16,15 @@
     <header>
         <div class="header-container">
             <a href="#" class="logo">A-Tech Store</a>
-
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Buscar productos, marcas y codigo">
                 <button onclick="searchProduct()"><i class="fas fa-search"></i></button>
             </div>
-
             <div class="user-menu" style="display: flex; gap: 15px; align-items: center;">
+                <button onclick="toggleOrders()" class="orders-btn"
+                    style="background: transparent; border: none; color: white; cursor: pointer;">
+                    <i class="fas fa-box-open"></i> Mis Compras
+                </button>
                 <button onclick="toggleCart()" class="cart-btn"
                     style="background: transparent; border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-shopping-cart"></i> Carrito
@@ -44,13 +47,26 @@
             </div>
             <div class="cart-footer">
                 <div id="cartTotalDisplay" class="cart-total-price">Total: $0.00</div>
+                <div id="paypal-button-container" style="margin-bottom: 10px;"></div>
                 <button onclick="clearCart()" class="clear-cart-btn">Vaciar Carrito</button>
             </div>
         </div>
     </div>
 
-    <div class="container dashboard">
+    <!-- Orders History Modal -->
+    <div id="ordersModal" class="cart-modal" style="display: none; z-index: 2001;">
+        <div class="cart-content" style="width: 600px;">
+            <div class="cart-header-modal">
+                <h3>Historial de Compras</h3>
+                <button onclick="toggleOrders()" class="close-cart">&times;</button>
+            </div>
+            <div id="ordersContainer" class="cart-items">
+                <!-- Orders -->
+            </div>
+        </div>
+    </div>
 
+    <div class="container dashboard">
         <!-- Admin Section (Hidden by default) -->
         <div id="adminSection" style="display: none; width: 100%; margin-bottom: 30px;">
             <div class="admin-panel">
@@ -74,13 +90,32 @@
         <div id="productList" class="product-grid">
             <!-- Products loaded here -->
         </div>
-
     </div>
 
     <!-- Footer -->
     <footer>
         <p>&copy; 2026 A-Tech Store. Todos los derechos reservados.</p>
     </footer>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="#" class="nav-item active" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+        </a>
+        <a href="#" class="nav-item" onclick="toggleOrders()">
+            <i class="fas fa-box-open"></i>
+            <span>Compras</span>
+        </a>
+        <a href="#" class="nav-item" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Carrito</span>
+        </a>
+        <a href="#" class="nav-item logout-link" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Salir</span>
+        </a>
+    </nav>
 
     <script src="js/dashboard.js"></script>
 </body>

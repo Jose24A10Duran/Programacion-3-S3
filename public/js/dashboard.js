@@ -48,7 +48,7 @@ function displayProducts(products) {
     products.forEach(product => {
         const div = document.createElement('div');
         div.className = 'product-card';
-        const image = product.image_url || 'https://via.placeholder.com/300x200?text=No+Image'; // Placeholder if empty
+        const image = product.image_url || 'https://via.placeholder.com/300x200?text=No+Image';
         const priceFormatted = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(product.price);
 
         let adminActions = '';
@@ -114,8 +114,8 @@ async function searchProduct() {
 
 async function toggleCart() {
     const modal = document.getElementById('cartModal');
-    if (modal.style.display === 'none') {
-        modal.display = 'flex'; // Fix display type
+    // Check computed style to be safe
+    if (modal.style.display === 'none' || getComputedStyle(modal).display === 'none') {
         modal.style.display = 'flex';
         await loadCart();
     } else {
@@ -138,8 +138,10 @@ async function loadCart() {
 function renderCart(data) {
     const container = document.getElementById('cartItemsContainer');
     const totalDisplay = document.getElementById('cartTotalDisplay');
+    const paypalContainer = document.getElementById('paypal-button-container');
 
     container.innerHTML = '';
+    paypalContainer.innerHTML = '';
 
     if (data.items.length === 0) {
         container.innerHTML = '<p>Tu carrito está vacío.</p>';
@@ -153,11 +155,11 @@ function renderCart(data) {
         const price = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.price);
 
         div.innerHTML = `
-            <div>
+            <div class="cart-item-info">
                 <strong>${item.name}</strong>
-                <div style="font-size: 0.8em;">${item.quantity} x ${price}</div>
+                <span>${item.quantity} x ${price}</span>
             </div>
-            <div style="font-weight: bold;">
+            <div class="cart-item-total">
                 ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.total)}
             </div>
         `;
@@ -165,6 +167,52 @@ function renderCart(data) {
     });
 
     totalDisplay.textContent = `Total: ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(data.total)}`;
+
+    // Render PayPal Button
+    const totalUSD = (data.total / 1000).toFixed(2);
+
+    if (window.paypal) {
+        window.paypal.Buttons({
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: totalUSD
+                        }
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(async function (details) {
+                    alert('Pago realizado por ' + details.payer.name.given_name);
+                    await createOrderBackend();
+                });
+            },
+            onError: function (err) {
+                console.error('PayPal Error:', err);
+                alert('Hubo un error con el pago.');
+            }
+        }).render('#paypal-button-container');
+    }
+}
+
+async function createOrderBackend() {
+    try {
+        const res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'x-auth-token': token }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert('Orden guardada exitosamente!');
+            toggleCart(); // Close cart
+            loadCart(); // Refresh (should be empty)
+        } else {
+            alert('Error al guardar orden: ' + data.msg);
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 window.addToCart = async function (productId) {
@@ -178,14 +226,16 @@ window.addToCart = async function (productId) {
             body: JSON.stringify({ productId })
         });
 
+        const data = await res.json(); // Parse response
+
         if (res.ok) {
             alert('¡Producto agregado al carrito!');
-            // Optional: update cart count if we had one
         } else {
-            alert('Error al agregar el producto.');
+            alert('Error: ' + (data.msg || data.error || JSON.stringify(data)));
         }
     } catch (err) {
         console.error(err);
+        alert('Error de conexión al agregar carrito.');
     }
 };
 
@@ -202,6 +252,67 @@ window.clearCart = async function () {
     }
 };
 
+// --- Orders Logic ---
+
+window.toggleOrders = async function () {
+    const modal = document.getElementById('ordersModal');
+    if (modal.style.display === 'none' || getComputedStyle(modal).display === 'none') {
+        modal.style.display = 'flex';
+        await loadOrders();
+    } else {
+        modal.style.display = 'none';
+    }
+}
+
+async function loadOrders() {
+    const container = document.getElementById('ordersContainer');
+    container.innerHTML = 'Cargando...';
+
+    try {
+        const res = await fetch('/api/orders', {
+            headers: { 'x-auth-token': token }
+        });
+        const orders = await res.json();
+
+        container.innerHTML = '';
+        if (orders.length === 0) {
+            container.innerHTML = '<p>No tienes compras realizadas.</p>';
+            return;
+        }
+
+        orders.forEach(order => {
+            const date = new Date(order.createdAt).toLocaleDateString();
+            const total = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(order.total);
+            const div = document.createElement('div');
+            div.className = 'cart-item-row';
+            div.style.flexDirection = 'column';
+            div.style.alignItems = 'flex-start';
+
+            let itemsHtml = order.OrderItems.map(item =>
+                `<li>${item.quantity} x ${item.Product ? item.Product.name : 'Producto'}</li>`
+            ).join('');
+
+            div.innerHTML = `
+                <div style="width: 100%; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 5px;">
+                    <strong>Orden #${order.id}</strong>
+                    <span>${date}</span>
+                </div>
+                <ul style="padding-left: 20px; font-size: 0.9em; color: #555; margin: 5px 0;">
+                    ${itemsHtml}
+                </ul>
+                <div style="width: 100%; text-align: right; font-weight: bold; color: #764ba2;">
+                    Total: ${total}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = 'Error al cargar historial.';
+    }
+}
+
 // --- Admin CRUD Logic ---
 
 // Prepare form for Edit
@@ -212,12 +323,10 @@ window.editProduct = function (id, name, code, price, description) {
     document.getElementById('price').value = price;
     document.getElementById('description').value = description;
 
-    // Change Button Text
     const submitBtn = document.querySelector('#createProductForm button[type="submit"]');
     submitBtn.textContent = 'Actualizar Producto';
-    submitBtn.style.background = 'linear-gradient(to right, #11998e 0%, #38ef7d 100%)'; // Greenish for update
+    submitBtn.style.background = 'linear-gradient(to right, #11998e 0%, #38ef7d 100%)';
 
-    // Add Cancel Button if not exists
     if (!document.getElementById('cancelEditBtn')) {
         const cancelBtn = document.createElement('button');
         cancelBtn.id = 'cancelEditBtn';
@@ -229,7 +338,6 @@ window.editProduct = function (id, name, code, price, description) {
         submitBtn.parentNode.insertBefore(cancelBtn, submitBtn.nextSibling);
     }
 
-    // Scroll to form
     document.getElementById('adminSection').scrollIntoView({ behavior: 'smooth' });
 };
 
@@ -237,17 +345,14 @@ function resetForm() {
     document.getElementById('createProductForm').reset();
     document.getElementById('editProductId').value = '';
 
-    // Reset Button
     const submitBtn = document.querySelector('#createProductForm button[type="submit"]');
     submitBtn.textContent = 'Publicar';
-    submitBtn.style.background = ''; // Reset to class style
+    submitBtn.style.background = '';
 
-    // Remove Cancel Button
     const cancelBtn = document.getElementById('cancelEditBtn');
     if (cancelBtn) cancelBtn.remove();
 }
 
-// Delete Product
 window.deleteProduct = async function (id) {
     if (!confirm('¿Estás seguro de eliminar este producto?')) return;
 
